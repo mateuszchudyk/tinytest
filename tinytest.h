@@ -6,7 +6,7 @@
 //------------------------------------------------------------------------------
 
 #define TINY_TEST_NAME                      "TinyTest"
-#define TINY_TEST_VERSION                   "0.1.0"
+#define TINY_TEST_VERSION                   "0.2.0"
 
 //------------------------------------------------------------------------------
 // You can define following macros by your own to customize TinyTest:
@@ -46,6 +46,17 @@
     static void test_name(tinytest::TestResult&); \
     _TT_APPEND_TEST(test_name, test_name); \
     static void test_name(tinytest::TestResult& _result_)
+
+#define TINY_PTEST(test_name, test_args_printf_format, ...) \
+    static const char* _tt_ptest_args_format_##test_name = test_args_printf_format; \
+    static void test_name(tinytest::TestResult& _result_, __VA_ARGS__)
+
+#define TINY_PTEST_INSTANCE(test_name, ...) \
+    static void _TT_CONCAT(_tt_ptest_instance_##test_name, __LINE__)(tinytest::TestResult&); \
+    _TT_APPEND_TEST(test_name, _TT_CONCAT(_tt_ptest_instance_##test_name, __LINE__), _tt_ptest_args_format_##test_name, __VA_ARGS__); \
+    static void _TT_CONCAT(_tt_ptest_instance_##test_name, __LINE__)(tinytest::TestResult& result) { \
+        test_name(result, __VA_ARGS__); \
+    }
 
 #define TINY_FAIL(...) \
     do { \
@@ -136,13 +147,16 @@
 #define _TT_CHOOSE_WRAPPER(name, version, ...) \
     _TT_CHOOSE_WRAPPER_INNER(name, version, __VA_ARGS__)
 
-#define _TT_TINY_LOG_0(color, format)         TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__)
-#define _TT_TINY_LOG_1(color, format, ...)    TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__, __VA_ARGS__)
+#define _TT_CONCAT_INNER(a, b)              a ## b
+#define _TT_CONCAT(a, b)                    _TT_CONCAT_INNER(a, b)
 
-#define _TT_APPEND_TEST(test_name, test_body) \
-    static void _tt_test_##test_name(tinytest::TestResult&); \
-    static tinytest::TestAppender _tt_appender_##test_name(_tt_test_##test_name); \
-    static void _tt_test_##test_name(tinytest::TestResult& result) { \
+#define _TT_TINY_LOG_0(color, format)       TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__)
+#define _TT_TINY_LOG_1(color, format, ...)  TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__, __VA_ARGS__)
+
+#define _TT_APPEND_TEST_0(test_name, test_body) \
+    static void _tt_test_##test_body(tinytest::TestResult&); \
+    static tinytest::TestAppender _tt_appender_##test_body(_tt_test_##test_body); \
+    static void _tt_test_##test_body(tinytest::TestResult& result) { \
         TINY_TEST_PRINTF("[ TEST ] " #test_name " -- " __FILE__ ":%d\n", __LINE__); \
         test_body(result); \
         if (result.passed) \
@@ -150,6 +164,22 @@
         else \
             TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_RED, "Failed (%u/%u)\n"), result.failed_checks, result.checks); \
     }
+
+#define _TT_APPEND_TEST_1(test_name, test_body, test_args_format, ...) \
+    static void _tt_test_##test_body(tinytest::TestResult&); \
+    static tinytest::TestAppender _tt_appender_##test_body(_tt_test_##test_body); \
+    static void _tt_test_##test_body(tinytest::TestResult& result) { \
+        TINY_TEST_PRINTF("[ TEST ] " #test_name "%c", '('); \
+        TINY_TEST_PRINTF(test_args_format, __VA_ARGS__); \
+        TINY_TEST_PRINTF(") -- " __FILE__ ":%d\n", __LINE__); \
+        test_body(result); \
+        if (result.passed) \
+            TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_GREEN, "Passed (%u/%u)\n"), result.checks, result.checks); \
+        else \
+            TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_RED, "Failed (%u/%u)\n"), result.failed_checks, result.checks); \
+    }
+
+#define _TT_APPEND_TEST(test_name, ...)   _TT_CHOOSE_WRAPPER(_TT_APPEND_TEST, _TT_AT_LEAST_1_ARG(__VA_ARGS__), test_name, __VA_ARGS__)
 
 struct tinytest {
     struct TestResult {

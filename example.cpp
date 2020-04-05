@@ -45,6 +45,16 @@ TINY_TEST(tiny_log) {
     TINY_LOG(TINY_CYAN, "TINY_CYAN");
 }
 
+TINY_PTEST(tiny_ptest, "N = %d", int N) {
+    for (int i = 0; i < N; ++i)
+        TINY_LOG(TINY_DEFAULT, "Example of TINY_PTEST");
+}
+
+TINY_PTEST_INSTANCE(tiny_ptest, 0);
+TINY_PTEST_INSTANCE(tiny_ptest, 1);
+TINY_PTEST_INSTANCE(tiny_ptest, 2);
+TINY_PTEST_INSTANCE(tiny_ptest, 3);
+
 int main() {
     // You can run only a certain test...
     // return TINY_TEST_RUN_TEST(tiny_log);
