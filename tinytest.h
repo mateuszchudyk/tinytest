@@ -39,12 +39,12 @@
 #define TINY_COLOR(color, text)             color text "\x1b[0m"
 
 // Logs
-#define TINY_LOG(color, ...)                __CHOOSE_WRAPPER(__TINY_LOG, __AT_LEAST_1_ARG(__VA_ARGS__), color, __VA_ARGS__)
+#define TINY_LOG(color, ...)                _TT_CHOOSE_WRAPPER(_TT_TINY_LOG, _TT_AT_LEAST_1_ARG(__VA_ARGS__), color, __VA_ARGS__)
 
 // Test
 #define TINY_TEST(test_name) \
     void test_name(tinytest::TestResult&); \
-    static tinytest::TestAppender _tiny_wrapper_##test_name(#test_name " (" __FILE__ ")", test_name); \
+    static tinytest::TestAppender _tt_wrapper_##test_name(#test_name " (" __FILE__ ")", test_name); \
     void test_name(tinytest::TestResult& _result_)
 
 #define TINY_FAIL(...) \
@@ -65,7 +65,7 @@
 #define TINY_CHECK_EPS(expected, actual, epsilon) \
     do { \
         ++_result_.checks; \
-        if (__FABS((expected) - (actual)) > (epsilon)) { \
+        if (_TT_FABS((expected) - (actual)) > (epsilon)) { \
             TINY_FAIL("values differ by more then %f (expected = %f, actual = %f)", (epsilon), (expected), (actual)); \
              ++_result_.failed_checks; \
         } \
@@ -89,7 +89,7 @@
         ++_result_.checks; \
         bool failed = false; \
         for (unsigned i = 0; i < (elements); ++i) \
-            if (__FABS((expected)[i] - (actual)[i]) > (epsilon)) { \
+            if (_TT_FABS((expected)[i] - (actual)[i]) > (epsilon)) { \
                 TINY_FAIL("memories differ at %u-th position by more then %f (expected = %f, actual = %f)", i, (epsilon), (expected)[i], (actual)[i]); \
                 failed = true; \
             } \
@@ -103,11 +103,11 @@
 //------------------------------------------------------------------------------
 
 // Floating point absolute value
-#define __FABS(a)   ((a) < 0 ? -(a) : (a))
+#define _TT_FABS(a)   ((a) < 0 ? -(a) : (a))
 
 // Workaround for unsupported optional arguments in variadic macros. Works if
 // number of arguments passed in __VA_ARGS__ is not greater then 100.
-#define __AT_LEAST_1_ARG_INNER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, \
+#define _TT_AT_LEAST_1_ARG_INNER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, \
     _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, \
     _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, \
     _41, _42, _43, _44, _45, _46, _47, _48, _49, _50, _51, _52, _53, _54, _55, \
@@ -116,25 +116,25 @@
     _86, _87, _88, _89, _90, _91, _92, _93, _94, _95, _96, _97, _98, _99, _100, \
     ARG, ...)  ARG
 
-#define __AT_LEAST_1_ARG(...) \
-    __AT_LEAST_1_ARG_INNER(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
+#define _TT_AT_LEAST_1_ARG(...) \
+    _TT_AT_LEAST_1_ARG_INNER(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
 
-#define __CHOOSE_WRAPPER_INNER(name, more_then_one, ...) \
+#define _TT_CHOOSE_WRAPPER_INNER(name, more_then_one, ...) \
     name##_##more_then_one(__VA_ARGS__)
 
-#define __CHOOSE_WRAPPER(name, version, ...) \
-    __CHOOSE_WRAPPER_INNER(name, version, __VA_ARGS__)
+#define _TT_CHOOSE_WRAPPER(name, version, ...) \
+    _TT_CHOOSE_WRAPPER_INNER(name, version, __VA_ARGS__)
 
-#define __TINY_LOG_0(color, format)         TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__)
-#define __TINY_LOG_1(color, format, ...)    TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__, __VA_ARGS__)
+#define _TT_TINY_LOG_0(color, format)         TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__)
+#define _TT_TINY_LOG_1(color, format, ...)    TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__, __VA_ARGS__)
 
-#define __PRINTLN_0(format)                 TINY_TEST_PRINTF(format "%c", '\n')
-#define __PRINTLN_1(format, ...)            TINY_TEST_PRINTF(format "\n", __VA_ARGS__)
-#define __PRINTLN(...)                      __CHOOSE_WRAPPER(__PRINTLN, __AT_LEAST_1_ARG(__VA_ARGS__), __VA_ARGS__)
+#define _TT_PRINTLN_0(format)                 TINY_TEST_PRINTF(format "%c", '\n')
+#define _TT_PRINTLN_1(format, ...)            TINY_TEST_PRINTF(format "\n", __VA_ARGS__)
+#define _TT_PRINTLN(...)                      _TT_CHOOSE_WRAPPER(_TT_PRINTLN, _TT_AT_LEAST_1_ARG(__VA_ARGS__), __VA_ARGS__)
 
 struct tinytest {
     struct TestResult {
@@ -150,7 +150,7 @@ struct tinytest {
     };
 
     static bool run_all_tests() {
-        __PRINTLN(
+        _TT_PRINTLN(
             "================================================================================\n"
             TINY_TEST_NAME " v" TINY_TEST_VERSION "\n"
             "================================================================================"
@@ -161,7 +161,7 @@ struct tinytest {
         unsigned total_checks = 0;
         unsigned total_failed_checks = 0;
         for (const Test* it = all_tests; it != all_tests_it; ++it) {
-            __PRINTLN("%c[ TEST ] %s", (it != all_tests ? '\n' : '\0'), it->name);
+            _TT_PRINTLN("%c[ TEST ] %s", (it != all_tests ? '\n' : '\0'), it->name);
 
             TestResult result = {true, 0, 0};
             it->body(result);
@@ -170,16 +170,16 @@ struct tinytest {
             total_failed_checks += result.failed_checks;
 
             if (result.passed) {
-                __PRINTLN("[------] " TINY_COLOR(TINY_GREEN, "Passed (%u/%u)"), result.checks, result.checks);
+                _TT_PRINTLN("[------] " TINY_COLOR(TINY_GREEN, "Passed (%u/%u)"), result.checks, result.checks);
                 ++passed;
             }
             else {
-                __PRINTLN("[------] " TINY_COLOR(TINY_RED, "Failed (%u/%u)"), result.failed_checks, result.checks);
+                _TT_PRINTLN("[------] " TINY_COLOR(TINY_RED, "Failed (%u/%u)"), result.failed_checks, result.checks);
                 ++failed;
             }
         }
 
-        __PRINTLN(
+        _TT_PRINTLN(
             "================================================================================\n"
             TINY_COLOR(TINY_GREEN, "Passed   %u (%u/%u)\n")
             TINY_COLOR(TINY_RED, "Failed   %u (%u/%u)\n")
@@ -188,9 +188,9 @@ struct tinytest {
             failed, total_failed_checks, total_checks);
 
         if (failed == 0)
-            __PRINTLN(TINY_COLOR(TINY_GREEN, "All tests passed!\n"));
+            _TT_PRINTLN(TINY_COLOR(TINY_GREEN, "All tests passed!\n"));
         else
-            __PRINTLN(TINY_COLOR(TINY_RED, "%d %s failed!\n"), failed, (failed == 1 ? "test" : "tests"));
+            _TT_PRINTLN(TINY_COLOR(TINY_RED, "%d %s failed!\n"), failed, (failed == 1 ? "test" : "tests"));
 
         return failed == 0;
     }
