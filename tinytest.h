@@ -139,10 +139,6 @@
 #define _TT_TINY_LOG_0(color, format)         TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__)
 #define _TT_TINY_LOG_1(color, format, ...)    TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__, __VA_ARGS__)
 
-#define _TT_PRINTLN_0(format)                 TINY_TEST_PRINTF(format "%c", '\n')
-#define _TT_PRINTLN_1(format, ...)            TINY_TEST_PRINTF(format "\n", __VA_ARGS__)
-#define _TT_PRINTLN(...)                      _TT_CHOOSE_WRAPPER(_TT_PRINTLN, _TT_AT_LEAST_1_ARG(__VA_ARGS__), __VA_ARGS__)
-
 struct tinytest {
     struct TestResult {
         bool passed;
@@ -157,18 +153,18 @@ struct tinytest {
     };
 
     static bool run_all_tests() {
-        _TT_PRINTLN(
+        TINY_TEST_PRINTF(
             "================================================================================\n"
             TINY_TEST_NAME " v" TINY_TEST_VERSION "\n"
-            "================================================================================"
-        );
+            "================================================================================%c",
+            '\n');
 
         unsigned passed = 0;
         unsigned failed = 0;
         unsigned total_checks = 0;
         unsigned total_failed_checks = 0;
         for (const Test* it = all_tests; it != all_tests_it; ++it) {
-            _TT_PRINTLN("%c[ TEST ] %s", (it != all_tests ? '\n' : '\0'), it->name);
+            TINY_TEST_PRINTF("%c[ TEST ] %s\n", (it != all_tests ? '\n' : '\0'), it->name);
 
             TestResult result = {true, 0, 0};
             it->body(result);
@@ -177,27 +173,27 @@ struct tinytest {
             total_failed_checks += result.failed_checks;
 
             if (result.passed) {
-                _TT_PRINTLN("[------] " TINY_COLOR(TINY_GREEN, "Passed (%u/%u)"), result.checks, result.checks);
+                TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_GREEN, "Passed (%u/%u)\n"), result.checks, result.checks);
                 ++passed;
             }
             else {
-                _TT_PRINTLN("[------] " TINY_COLOR(TINY_RED, "Failed (%u/%u)"), result.failed_checks, result.checks);
+                TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_RED, "Failed (%u/%u)\n"), result.failed_checks, result.checks);
                 ++failed;
             }
         }
 
-        _TT_PRINTLN(
+        TINY_TEST_PRINTF(
             "================================================================================\n"
             TINY_COLOR(TINY_GREEN, "Passed   %u (%u/%u)\n")
             TINY_COLOR(TINY_RED, "Failed   %u (%u/%u)\n")
-            "================================================================================",
+            "================================================================================\n",
             passed, total_checks - total_failed_checks, total_checks,
             failed, total_failed_checks, total_checks);
 
         if (failed == 0)
-            _TT_PRINTLN(TINY_COLOR(TINY_GREEN, "All tests passed!\n"));
+            TINY_TEST_PRINTF(TINY_COLOR(TINY_GREEN, "All tests passed!\n%c"), '\n');
         else
-            _TT_PRINTLN(TINY_COLOR(TINY_RED, "%d %s failed!\n"), failed, (failed == 1 ? "test" : "tests"));
+            TINY_TEST_PRINTF(TINY_COLOR(TINY_RED, "%d %s failed!\n\n"), failed, (failed == 1 ? "test" : "tests"));
 
         return failed == 0;
     }
