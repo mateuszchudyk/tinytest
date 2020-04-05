@@ -46,5 +46,5 @@ TINY_TEST(tiny_log) {
 }
 
 int main() {
-    return tinytest::run_all_tests();
+    return TINY_TEST_RUN_ALL();
 }
