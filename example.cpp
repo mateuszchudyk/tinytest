@@ -46,5 +46,9 @@ TINY_TEST(tiny_log) {
 }
 
 int main() {
+    // You can run only a certain test...
+    // return TINY_TEST_RUN_TEST(tiny_log);
+
+    // ...or all tests.
     return TINY_TEST_RUN_ALL();
 }

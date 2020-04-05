@@ -44,7 +44,7 @@
 // Test
 #define TINY_TEST(test_name) \
     void test_name(tinytest::TestResult&); \
-    static tinytest::TestAppender _tt_wrapper_##test_name(#test_name " (" __FILE__ ")", test_name); \
+    _TT_APPEND_TEST(test_name, test_name); \
     void test_name(tinytest::TestResult& _result_)
 
 #define TINY_FAIL(...) \
@@ -101,8 +101,8 @@
 // Run all tests
 //------------------------------------------------------------------------------
 
-#define TINY_TEST_RUN_ALL() \
-    tinytest::run_all_tests()
+#define TINY_TEST_RUN_TEST(test_name)       tinytest::run_test(_tt_test_##test_name)
+#define TINY_TEST_RUN_ALL()                 tinytest::run_all_tests()
 
 //------------------------------------------------------------------------------
 // TinyTest implementation detail. It's not important for you if you only
@@ -139,6 +139,18 @@
 #define _TT_TINY_LOG_0(color, format)         TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__)
 #define _TT_TINY_LOG_1(color, format, ...)    TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__, __VA_ARGS__)
 
+#define _TT_APPEND_TEST(test_name, test_body) \
+    static void _tt_test_##test_name(tinytest::TestResult&); \
+    static tinytest::TestAppender _tt_appender_##test_name(_tt_test_##test_name); \
+    static void _tt_test_##test_name(tinytest::TestResult& result) { \
+        TINY_TEST_PRINTF("[ TEST ] " #test_name " (" __FILE__ ")%c", '\n'); \
+        test_body(result); \
+        if (result.passed) \
+            TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_GREEN, "Passed (%u/%u)\n"), result.checks, result.checks); \
+        else \
+            TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_RED, "Failed (%u/%u)\n"), result.failed_checks, result.checks); \
+    }
+
 struct tinytest {
     struct TestResult {
         bool passed;
@@ -146,11 +158,19 @@ struct tinytest {
         unsigned failed_checks;
     };
 
+    typedef void(*TestBody)(TestResult&);
+
     struct TestAppender {
-        TestAppender(const char* name, void(*body)(TestResult&)) {
-            *tinytest::all_tests_it++ = (Test){name, body};
+        TestAppender(TestBody test_body) {
+            *tinytest::all_tests_it++ = test_body;
         }
     };
+
+    static bool run_test(TestBody body) {
+        TestResult result = {true, 0, 0};
+        body(result);
+        return result.passed;
+    }
 
     static bool run_all_tests() {
         TINY_TEST_PRINTF(
@@ -163,23 +183,19 @@ struct tinytest {
         unsigned failed = 0;
         unsigned total_checks = 0;
         unsigned total_failed_checks = 0;
-        for (const Test* it = all_tests; it != all_tests_it; ++it) {
-            TINY_TEST_PRINTF("%c[ TEST ] %s\n", (it != all_tests ? '\n' : '\0'), it->name);
-
+        for (const TestBody* it = all_tests; it != all_tests_it; ++it) {
+            if (it != all_tests)
+                TINY_TEST_PRINTF("%c", '\n');
             TestResult result = {true, 0, 0};
-            it->body(result);
+            (*it)(result);
 
             total_checks += result.checks;
             total_failed_checks += result.failed_checks;
 
-            if (result.passed) {
-                TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_GREEN, "Passed (%u/%u)\n"), result.checks, result.checks);
+            if (result.passed)
                 ++passed;
-            }
-            else {
-                TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_RED, "Failed (%u/%u)\n"), result.failed_checks, result.checks);
+            else
                 ++failed;
-            }
         }
 
         TINY_TEST_PRINTF(
@@ -199,16 +215,11 @@ struct tinytest {
     }
 
 private:
-    struct Test {
-        const char* name;
-        void (*body)(TestResult&);
-    };
-
-    static Test all_tests[TINY_TEST_MAX_TESTS];
-    static Test* all_tests_it;
+    static TestBody all_tests[TINY_TEST_MAX_TESTS];
+    static TestBody* all_tests_it;
 };
 
-tinytest::Test tinytest::all_tests[TINY_TEST_MAX_TESTS] = {};
-tinytest::Test* tinytest::all_tests_it = tinytest::all_tests;
+tinytest::TestBody tinytest::all_tests[TINY_TEST_MAX_TESTS] = {};
+tinytest::TestBody* tinytest::all_tests_it = tinytest::all_tests;
 
 #endif
