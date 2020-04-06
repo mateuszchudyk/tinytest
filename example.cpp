@@ -1,6 +1,6 @@
 #include "tinytest.h"
 
-TINY_TEST(passed_test) {
+TINY_TEST(tiny_test_passed) {
     TINY_CHECK(1, 1);
     TINY_CHECK_EPS(1.0f, 1.1f, 0.5f);
 
@@ -13,7 +13,7 @@ TINY_TEST(passed_test) {
     TINY_CHECK_MEM_EPS(mem_expected2, mem_actual2, sizeof(mem_expected2) / sizeof(mem_expected2[0]), 0.5f);
 }
 
-TINY_TEST(failed_test) {
+TINY_TEST(tiny_test_failed) {
     TINY_CHECK(1, 2);
     TINY_CHECK_EPS(1.0f, 1.1f, 0.001f);
 
