@@ -75,7 +75,7 @@
     do { \
         ++_result_.checks; \
         bool failed = false; \
-        for (unsigned i = 0; i < (elements); ++i) \
+        for (unsigned i = 0; i < (unsigned)(elements); ++i) \
             if ((expected)[i] != (actual)[i]) { \
                 TINY_FAIL("memories differ at %u-th position (expected = %d, actual = %d)", i, (expected)[i], (actual)[i]); \
                 failed = true; \
@@ -88,7 +88,7 @@
     do { \
         ++_result_.checks; \
         bool failed = false; \
-        for (unsigned i = 0; i < (elements); ++i) \
+        for (unsigned i = 0; i < (unsigned)(elements); ++i) \
             if (_TT_FABS((expected)[i] - (actual)[i]) > (epsilon)) { \
                 TINY_FAIL("memories differ at %u-th position by more then %f (expected = %f, actual = %f)", i, (epsilon), (expected)[i], (actual)[i]); \
                 failed = true; \
