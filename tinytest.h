@@ -143,7 +143,7 @@
     static void _tt_test_##test_name(tinytest::TestResult&); \
     static tinytest::TestAppender _tt_appender_##test_name(_tt_test_##test_name); \
     static void _tt_test_##test_name(tinytest::TestResult& result) { \
-        TINY_TEST_PRINTF("[ TEST ] " #test_name " (" __FILE__ ")%c", '\n'); \
+        TINY_TEST_PRINTF("[ TEST ] " #test_name " -- " __FILE__ ":%d\n", __LINE__); \
         test_body(result); \
         if (result.passed) \
             TINY_TEST_PRINTF("[------] " TINY_COLOR(TINY_GREEN, "Passed (%u/%u)\n"), result.checks, result.checks); \
