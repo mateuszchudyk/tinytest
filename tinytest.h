@@ -11,7 +11,7 @@
 //------------------------------------------------------------------------------
 // You can define following macros by your own to customize TinyTest:
 //   - TINY_TEST_MAX_TESTS                  - maximum number of tests
-//   - TINY_TEST_PRINTF(format, ...)        - printing functions
+//   - TINY_TEST_PRINTF(format, ...)        - printing function
 //------------------------------------------------------------------------------
 
 #ifndef TINY_TEST_MAX_TESTS
@@ -43,9 +43,9 @@
 
 // Test
 #define TINY_TEST(test_name) \
-    void test_name(tinytest::TestResult&); \
+    static void test_name(tinytest::TestResult&); \
     _TT_APPEND_TEST(test_name, test_name); \
-    void test_name(tinytest::TestResult& _result_)
+    static void test_name(tinytest::TestResult& _result_)
 
 #define TINY_FAIL(...) \
     do { \
