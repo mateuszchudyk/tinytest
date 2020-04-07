@@ -45,6 +45,16 @@ TINY_TEST(tiny_log) {
     TINY_LOG(TINY_CYAN, "TINY_CYAN");
 }
 
+TINY_SUBTEST(subtest, int i) {
+    TINY_LOG(TINY_DEFAULT, "%d. run", i);
+}
+
+TINY_TEST(tiny_test_with_subtest) {
+    TINY_LOG(TINY_DEFAULT, "This test runs the subtest 4 times");
+    for (int i = 0; i < 4; ++i)
+        TINY_RUN_SUBTEST(subtest, i + 1);
+}
+
 TINY_PTEST(tiny_ptest, "N = %d", int N) {
     for (int i = 0; i < N; ++i)
         TINY_LOG(TINY_DEFAULT, "Example of TINY_PTEST");

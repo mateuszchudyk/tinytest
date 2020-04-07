@@ -6,7 +6,7 @@
 //------------------------------------------------------------------------------
 
 #define TINY_TEST_NAME                      "TinyTest"
-#define TINY_TEST_VERSION                   "0.2.0"
+#define TINY_TEST_VERSION                   "0.3.0"
 
 //------------------------------------------------------------------------------
 // You can define following macros by your own to customize TinyTest:
@@ -46,6 +46,12 @@
     static void test_name(tinytest::TestResult&); \
     _TT_APPEND_TEST(test_name, test_name); \
     static void test_name(tinytest::TestResult& _tt_result)
+
+#define TINY_SUBTEST(subtest_name, ...) \
+    static void subtest_name(tinytest::TestResult& _tt_result, __VA_ARGS__)
+
+#define TINY_RUN_SUBTEST(subtest_name, ...) \
+    subtest_name(_tt_result, __VA_ARGS__)
 
 #define TINY_PTEST(test_name, test_args_printf_format, ...) \
     static const char* _tt_ptest_args_format_##test_name = test_args_printf_format; \
