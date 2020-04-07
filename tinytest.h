@@ -45,11 +45,11 @@
 #define TINY_TEST(test_name) \
     static void test_name(tinytest::TestResult&); \
     _TT_APPEND_TEST(test_name, test_name); \
-    static void test_name(tinytest::TestResult& _result_)
+    static void test_name(tinytest::TestResult& _tt_result)
 
 #define TINY_PTEST(test_name, test_args_printf_format, ...) \
     static const char* _tt_ptest_args_format_##test_name = test_args_printf_format; \
-    static void test_name(tinytest::TestResult& _result_, __VA_ARGS__)
+    static void test_name(tinytest::TestResult& _tt_result, __VA_ARGS__)
 
 #define TINY_PTEST_INSTANCE(test_name, ...) \
     static void _TT_CONCAT(_tt_ptest_instance_##test_name, __LINE__)(tinytest::TestResult&); \
@@ -61,30 +61,30 @@
 #define TINY_FAIL(...) \
     do { \
         TINY_LOG(TINY_RED, __VA_ARGS__); \
-        _result_.passed = false; \
+        _tt_result.passed = false; \
     } while (false)
 
 #define TINY_CHECK(expected, actual) \
     do { \
-        ++_result_.checks; \
+        ++_tt_result.checks; \
         if ((expected) != (actual)) { \
             TINY_FAIL("values are different (expected = %d, actual = %d)", (expected), (actual)); \
-             ++_result_.failed_checks; \
+             ++_tt_result.failed_checks; \
         } \
     } while (false)
 
 #define TINY_CHECK_EPS(expected, actual, epsilon) \
     do { \
-        ++_result_.checks; \
+        ++_tt_result.checks; \
         if (_TT_FABS((expected) - (actual)) > (epsilon)) { \
             TINY_FAIL("values differ by more then %f (expected = %f, actual = %f)", (epsilon), (expected), (actual)); \
-             ++_result_.failed_checks; \
+             ++_tt_result.failed_checks; \
         } \
     } while (false)
 
 #define TINY_CHECK_MEM(expected, actual, elements) \
     do { \
-        ++_result_.checks; \
+        ++_tt_result.checks; \
         bool failed = false; \
         for (unsigned i = 0; i < (unsigned)(elements); ++i) \
             if ((expected)[i] != (actual)[i]) { \
@@ -92,12 +92,12 @@
                 failed = true; \
             } \
         if (failed) \
-            ++_result_.failed_checks; \
+            ++_tt_result.failed_checks; \
     } while (false)
 
 #define TINY_CHECK_MEM_EPS(expected, actual, elements, epsilon) \
     do { \
-        ++_result_.checks; \
+        ++_tt_result.checks; \
         bool failed = false; \
         for (unsigned i = 0; i < (unsigned)(elements); ++i) \
             if (_TT_FABS((expected)[i] - (actual)[i]) > (epsilon)) { \
@@ -105,7 +105,7 @@
                 failed = true; \
             } \
         if (failed) \
-            ++_result_.failed_checks; \
+            ++_tt_result.failed_checks; \
     } while (false)
 
 //------------------------------------------------------------------------------
