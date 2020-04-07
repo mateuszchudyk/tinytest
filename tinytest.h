@@ -180,7 +180,7 @@
  *   - actual           - actual array pointer
  *   - elements         - number of array elements
  */
-#define TINY_CHECK_MEM(expected, actual, elements) \
+#define TINY_CHECK_ARRAY(expected, actual, elements) \
     do { \
         ++_tt_result.checks; \
         bool failed = false; \
@@ -203,7 +203,7 @@
  *   - epsilon          - maximum acceptable difference
  *   - elements         - number of array elements
  */
-#define TINY_CHECK_MEM_EPS(expected, actual, elements, epsilon) \
+#define TINY_CHECK_ARRAY_EPS(expected, actual, elements, epsilon) \
     do { \
         ++_tt_result.checks; \
         bool failed = false; \

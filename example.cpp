@@ -6,11 +6,11 @@ TINY_TEST(tiny_test_passed) {
 
     int mem_expected1[] = {1, 2, 3};
     int mem_actual1[]   = {1, 2, 3};
-    TINY_CHECK_MEM(mem_expected1, mem_actual1, sizeof(mem_expected1) / sizeof(mem_expected1[0]));
+    TINY_CHECK_ARRAY(mem_expected1, mem_actual1, sizeof(mem_expected1) / sizeof(mem_expected1[0]));
 
     float mem_expected2[] = {1.1f, 2.2f, 3.3f};
     float mem_actual2[]   = {1.2f, 2.0f, 3.5f};
-    TINY_CHECK_MEM_EPS(mem_expected2, mem_actual2, sizeof(mem_expected2) / sizeof(mem_expected2[0]), 0.5f);
+    TINY_CHECK_ARRAY_EPS(mem_expected2, mem_actual2, sizeof(mem_expected2) / sizeof(mem_expected2[0]), 0.5f);
 }
 
 TINY_TEST(tiny_test_failed) {
@@ -19,11 +19,11 @@ TINY_TEST(tiny_test_failed) {
 
     int mem_expected1[] = {1, 2, 3};
     int mem_actual1[]   = {1, 3, 3};
-    TINY_CHECK_MEM(mem_expected1, mem_actual1, sizeof(mem_expected1) / sizeof(mem_expected1[0]));
+    TINY_CHECK_ARRAY(mem_expected1, mem_actual1, sizeof(mem_expected1) / sizeof(mem_expected1[0]));
 
     float mem_expected2[] = {1.1f, 2.2f, 3.3f};
     float mem_actual2[]   = {1.1f, 2.0f, 3.3f};
-    TINY_CHECK_MEM_EPS(mem_expected2, mem_actual2, sizeof(mem_expected2) / sizeof(mem_expected2[0]), 0.001f);
+    TINY_CHECK_ARRAY_EPS(mem_expected2, mem_actual2, sizeof(mem_expected2) / sizeof(mem_expected2[0]), 0.001f);
 }
 
 TINY_TEST(tiny_fail) {
