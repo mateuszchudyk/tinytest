@@ -45,14 +45,21 @@ TINY_TEST(tiny_log) {
     TINY_LOG(TINY_CYAN, "TINY_CYAN");
 }
 
-TINY_SUBTEST(subtest, int i) {
+TINY_SUBTEST(subtest_withoyt_args) {
+    TINY_LOG(TINY_DEFAULT, "I'm a little subset.");
+}
+
+TINY_SUBTEST(subtest_with_args, int i) {
     TINY_LOG(TINY_DEFAULT, "%d. run", i);
 }
 
 TINY_TEST(tiny_test_with_subtest) {
-    TINY_LOG(TINY_DEFAULT, "This test runs the subtest 4 times");
+    TINY_LOG(TINY_DEFAULT, "This test runs a subtest without args 4 times...");
     for (int i = 0; i < 4; ++i)
-        TINY_RUN_SUBTEST(subtest, i + 1);
+        TINY_RUN_SUBTEST(subtest_withoyt_args);
+    TINY_LOG(TINY_DEFAULT, "...and a subtest with args 4 times.");
+    for (int i = 0; i < 4; ++i)
+        TINY_RUN_SUBTEST(subtest_with_args, i + 1);
 }
 
 TINY_PTEST(tiny_ptest, "N = %d", int N) {

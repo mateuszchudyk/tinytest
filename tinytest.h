@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 
 #define TINY_TEST_NAME                      "TinyTest"
-#define TINY_TEST_VERSION                   "0.3.0"
+#define TINY_TEST_VERSION                   "0.4.0"
 
 //------------------------------------------------------------------------------
 //
@@ -85,8 +85,8 @@
  *   - subtest_name
  *   - subtest_args...
  */
-#define TINY_SUBTEST(subtest_name, ...) \
-    static void subtest_name(tinytest::TestResult& _tt_result, __VA_ARGS__)
+#define TINY_SUBTEST(...) \
+    _TT_CHOOSE_WRAPPER(_TT_TINY_SUBTEST, _TT_AT_LEAST_1_ARG(__VA_ARGS__), __VA_ARGS__)
 
 /*
  * Run a subtest.
@@ -96,8 +96,8 @@
  *   - subtest_name
  *   - subtest_args...
  */
-#define TINY_RUN_SUBTEST(subtest_name, ...) \
-    subtest_name(_tt_result, __VA_ARGS__)
+#define TINY_RUN_SUBTEST(...) \
+    _TT_CHOOSE_WRAPPER(_TT_TINY_RUN_SUBTEST, _TT_AT_LEAST_1_ARG(__VA_ARGS__), __VA_ARGS__)
 
 /*
  * Create a parametrized test.
@@ -271,6 +271,12 @@
 
 #define _TT_TINY_LOG_0(color, format)       TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__)
 #define _TT_TINY_LOG_1(color, format, ...)  TINY_TEST_PRINTF("[      ] " TINY_COLOR(color, "Line #%d: " format "\n"), __LINE__, __VA_ARGS__)
+
+#define _TT_TINY_SUBTEST_0(subtest_name)            static void subtest_name(tinytest::TestResult& _tt_result)
+#define _TT_TINY_SUBTEST_1(subtest_name, ...)       static void subtest_name(tinytest::TestResult& _tt_result, __VA_ARGS__)
+
+#define _TT_TINY_RUN_SUBTEST_0(subtest_name)        subtest_name(_tt_result)
+#define _TT_TINY_RUN_SUBTEST_1(subtest_name, ...)   subtest_name(_tt_result, __VA_ARGS__)
 
 #define _TT_APPEND_TEST_0(test_name, test_body) \
     static void _tt_test_##test_body(tinytest::TestResult&); \
