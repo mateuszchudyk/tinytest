@@ -196,10 +196,10 @@ struct tinytest {
         }
     };
 
-    static bool run_test(TestBody body) {
+    static TestResult run_test(TestBody body) {
         TestResult result = {true, 0, 0};
         body(result);
-        return result.passed;
+        return result;
     }
 
     static bool run_all_tests() {

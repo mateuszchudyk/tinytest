@@ -57,7 +57,7 @@ TINY_PTEST_INSTANCE(tiny_ptest, 3);
 
 int main() {
     // You can run only a certain test...
-    // return TINY_TEST_RUN_TEST(tiny_log);
+    // return TINY_TEST_RUN_TEST(tiny_log).passed;
 
     // ...or all tests.
     return TINY_TEST_RUN_ALL();
