@@ -2,16 +2,20 @@
 #define TINY_TEST_H
 
 //------------------------------------------------------------------------------
+//
 // TinyTest information
+//
 //------------------------------------------------------------------------------
 
 #define TINY_TEST_NAME                      "TinyTest"
 #define TINY_TEST_VERSION                   "0.3.0"
 
 //------------------------------------------------------------------------------
+//
 // You can define following macros by your own to customize TinyTest:
 //   - TINY_TEST_MAX_TESTS                  - maximum number of tests
 //   - TINY_TEST_PRINTF(format, ...)        - printing function
+//
 //------------------------------------------------------------------------------
 
 #ifndef TINY_TEST_MAX_TESTS
@@ -24,10 +28,15 @@
 #endif
 
 //------------------------------------------------------------------------------
-// Macros you can use to create tests, checks, logs, etc.
+//
+// Logs
+//
 //------------------------------------------------------------------------------
 
-// Colors
+/*
+ * Set color formatting for the text.
+ */
+#define TINY_COLOR(color, text)             color text "\x1b[0m"
 #define TINY_DEFAULT                        "\x1b[0m"
 #define TINY_GRAY                           "\x1b[90m"
 #define TINY_RED                            "\x1b[91m"
@@ -36,40 +45,106 @@
 #define TINY_BLUE                           "\x1b[94m"
 #define TINY_MAGENTA                        "\x1b[95m"
 #define TINY_CYAN                           "\x1b[96m"
-#define TINY_COLOR(color, text)             color text "\x1b[0m"
 
-// Logs
-#define TINY_LOG(color, ...)                _TT_CHOOSE_WRAPPER(_TT_TINY_LOG, _TT_AT_LEAST_1_ARG(__VA_ARGS__), color, __VA_ARGS__)
+/*
+ * Print log.
+ *
+ * Arguments:
+ *   - color            - log color
+ *   - format           - printf format
+ *   - args... [opt]    - arguments
+ */
+#define TINY_LOG(color, ...) \
+    _TT_CHOOSE_WRAPPER(_TT_TINY_LOG, _TT_AT_LEAST_1_ARG(__VA_ARGS__), color, __VA_ARGS__)
 
-// Test
+//------------------------------------------------------------------------------
+//
+// Tests
+//
+//------------------------------------------------------------------------------
+
+/*
+ * Create a basic test.
+ * It's automatically added to the tests queue (see: TINY_TEST_RUN_ALL). It can
+ * be also run as a separate single tests (see: TINY_TEST_RUN_TEST).
+ *
+ * Arguments:
+ *   - test_name
+ */
 #define TINY_TEST(test_name) \
     static void test_name(tinytest::TestResult&); \
     _TT_APPEND_TEST(test_name, test_name); \
     static void test_name(tinytest::TestResult& _tt_result)
 
+/*
+ * Create a subtest.
+ * To run it, it has to be called from an other test. It is used to divide
+ * a test to smaller independent parts.
+ *
+ * Arguments:
+ *   - subtest_name
+ *   - subtest_args...
+ */
 #define TINY_SUBTEST(subtest_name, ...) \
     static void subtest_name(tinytest::TestResult& _tt_result, __VA_ARGS__)
 
+/*
+ * Run a subtest.
+ * It can be used only in a test body.
+ *
+ * Arguments:
+ *   - subtest_name
+ *   - subtest_args...
+ */
 #define TINY_RUN_SUBTEST(subtest_name, ...) \
     subtest_name(_tt_result, __VA_ARGS__)
 
-#define TINY_PTEST(test_name, test_args_printf_format, ...) \
-    static const char* _tt_ptest_args_format_##test_name = test_args_printf_format; \
-    static void test_name(tinytest::TestResult& _tt_result, __VA_ARGS__)
+/*
+ * Create a parametrized test.
+ *
+ * Arguments:
+ *   - ptest_name
+ *   - ptest_args_printf_format
+ *   - ptest_args...
+ */
+#define TINY_PTEST(ptest_name, ptest_args_printf_format, ...) \
+    static const char* _tt_ptest_args_format_##ptest_name = ptest_args_printf_format; \
+    static void ptest_name(tinytest::TestResult& _tt_result, __VA_ARGS__)
 
-#define TINY_PTEST_INSTANCE(test_name, ...) \
-    static void _TT_CONCAT(_tt_ptest_instance_##test_name, __LINE__)(tinytest::TestResult&); \
-    _TT_APPEND_TEST(test_name, _TT_CONCAT(_tt_ptest_instance_##test_name, __LINE__), _tt_ptest_args_format_##test_name, __VA_ARGS__); \
-    static void _TT_CONCAT(_tt_ptest_instance_##test_name, __LINE__)(tinytest::TestResult& result) { \
-        test_name(result, __VA_ARGS__); \
+/*
+ * Create a test that is an instance of the given ptest.
+ *
+ * Arguments:
+ *   - ptest_name
+ *   - ptest_args...
+ */
+#define TINY_PTEST_INSTANCE(ptest_name, ...) \
+    static void _TT_CONCAT(_tt_ptest_instance_##ptest_name, __LINE__)(tinytest::TestResult&); \
+    _TT_APPEND_TEST(ptest_name, _TT_CONCAT(_tt_ptest_instance_##ptest_name, __LINE__), _tt_ptest_args_format_##ptest_name, __VA_ARGS__); \
+    static void _TT_CONCAT(_tt_ptest_instance_##ptest_name, __LINE__)(tinytest::TestResult& result) { \
+        ptest_name(result, __VA_ARGS__); \
     }
 
+/*
+ * Test force fail
+ *
+ * Arguments:
+ *   - format           - message printf format
+ *   - args... [opt]    - arguments
+ */
 #define TINY_FAIL(...) \
     do { \
         TINY_LOG(TINY_RED, __VA_ARGS__); \
         _tt_result.passed = false; \
     } while (false)
 
+/*
+ * Check if actual value is equal expected value.
+ *
+ * Arguments:
+ *   - expected         - expected value
+ *   - actual           - actual value
+ */
 #define TINY_CHECK(expected, actual) \
     do { \
         ++_tt_result.checks; \
@@ -79,6 +154,14 @@
         } \
     } while (false)
 
+/*
+ * Check if actual value is not differ from expected value by more then epsilon.
+ *
+ * Arguments:
+ *   - expected         - expected value
+ *   - actual           - actual value
+ *   - epsilon          - maximum acceptable difference
+ */
 #define TINY_CHECK_EPS(expected, actual, epsilon) \
     do { \
         ++_tt_result.checks; \
@@ -88,6 +171,15 @@
         } \
     } while (false)
 
+/*
+ * Check if every value in the actual array is equal to corresponding value
+ * in the expected array.
+ *
+ * Arguments:
+ *   - expected         - expected array pointer
+ *   - actual           - actual array pointer
+ *   - elements         - number of array elements
+ */
 #define TINY_CHECK_MEM(expected, actual, elements) \
     do { \
         ++_tt_result.checks; \
@@ -101,6 +193,16 @@
             ++_tt_result.failed_checks; \
     } while (false)
 
+/*
+ * Check if every value in the actual array is not differ from corresponding value
+ * in the expected array by more then epsilon.
+ *
+ * Arguments:
+ *   - expected         - expected array pointer
+ *   - actual           - actual array pointer
+ *   - epsilon          - maximum acceptable difference
+ *   - elements         - number of array elements
+ */
 #define TINY_CHECK_MEM_EPS(expected, actual, elements, epsilon) \
     do { \
         ++_tt_result.checks; \
@@ -114,16 +216,27 @@
             ++_tt_result.failed_checks; \
     } while (false)
 
-//------------------------------------------------------------------------------
-// Run all tests
-//------------------------------------------------------------------------------
+/*
+ * Run test.
+ *
+ * Arguments:
+ *   - test_name        - test name
+ */
+#define TINY_TEST_RUN_TEST(test_name) \
+    tinytest::run_test(_tt_test_##test_name)
 
-#define TINY_TEST_RUN_TEST(test_name)       tinytest::run_test(_tt_test_##test_name)
-#define TINY_TEST_RUN_ALL()                 tinytest::run_all_tests()
+/*
+ * Run all tests in the test queue.
+ */
+#define TINY_TEST_RUN_ALL() \
+    tinytest::run_all_tests()
 
 //------------------------------------------------------------------------------
-// TinyTest implementation detail. It's not important for you if you only
-// want to use TinyTest.
+//
+// IMPLEMENTATION DETAILS
+//
+// It's not important for you if you only want to use TinyTest.
+//
 //------------------------------------------------------------------------------
 
 // Floating point absolute value
