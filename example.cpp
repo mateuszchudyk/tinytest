@@ -46,7 +46,7 @@ TINY_TEST(tiny_log) {
 }
 
 TINY_SUBTEST(subtest_withoyt_args) {
-    TINY_LOG(TINY_DEFAULT, "I'm a little subset.");
+    TINY_LOG(TINY_DEFAULT, "I'm a little subtest.");
 }
 
 TINY_SUBTEST(subtest_with_args, int i) {
